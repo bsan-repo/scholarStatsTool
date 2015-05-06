@@ -1,0 +1,132 @@
+CREATE DATABASE IF NOT EXISTS academic;
+
+USE academic;
+
+CREATE TABLE IF NOT EXISTS config_parameter(
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(127),
+    value VARCHAR(255),
+    INDEX(name)
+);
+
+CREATE TABLE IF NOT EXISTS author_to_search(
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    processed BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS affiliation(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	msa_id INTEGER,
+	official_name VARCHAR(255), 
+	homepage VARCHAR(255),
+	latitude DOUBLE,
+	longitude DOUBLE,
+	INDEX(msa_id)
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS author_details(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	msa_id INTEGER,
+	affiliation VARCHAR(255),
+	msa_affiliation_id INTEGER,
+	research_interest VARCHAR(255),
+	homepage_url VARCHAR(255),
+	version INTEGER
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS author(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	name VARCHAR(255),
+	details_id INTEGER,
+	INDEX(name),
+	FOREIGN KEY(details_id)
+		REFERENCES author_details(id)
+		ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS era_journal(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	era_id VARCHAR(6),
+	name VARCHAR(100), 
+	acronym VARCHAR(15), 
+	rank VARCHAR(2)
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+	
+CREATE TABLE IF NOT EXISTS era_conference(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	era_id VARCHAR(6),
+	name VARCHAR(100), 
+	acronym VARCHAR(15), 
+	rank VARCHAR(2)
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS journal(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT,
+	msa_id INTEGER,
+	fullname VARCHAR(256),
+	homepage VARCHAR(256),
+	era_entry INTEGER DEFAULT NULL,
+	FOREIGN KEY(era_entry)
+		REFERENCES era_journal(id)
+		ON DELETE SET NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS conference(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	msa_id INTEGER,
+	fullname VARCHAR(256),
+	homepage VARCHAR(256),
+	era_entry INTEGER DEFAULT NULL,
+	FOREIGN KEY(era_entry)
+		REFERENCES era_conference(id)
+		ON DELETE SET NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS paper(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	conference_id INTEGER,
+	journal_id INTEGER,
+	year INTEGER,
+	title VARCHAR(255),
+	msa_id INTEGER,
+	keyword VARCHAR(255),
+	msa_conference_id INTEGER,
+	msa_journal_id INTEGER,
+	FOREIGN KEY(conference_id)
+		REFERENCES conference(id)
+		ON DELETE SET NULL,
+	FOREIGN KEY(journal_id)
+		REFERENCES journal(id)
+		ON DELETE SET NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE author_paper(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	author_id INTEGER,
+	paper_id INTEGER,
+	msa_seq_id INTEGER,
+	msa_paper_id INTEGER,
+	msa_author_id INTEGER,
+	FOREIGN KEY(author_id)
+		REFERENCES author(id)
+		ON DELETE CASCADE,
+	FOREIGN KEY(paper_id)
+		REFERENCES paper(id)
+		ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS paper_ref(
+	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+	paper_id INTEGER,
+	citation_id INTEGER,
+	msa_paper_id INTEGER,
+	msa_citation_id INTEGER,
+	msa_seq_ref INTEGER,
+	FOREIGN KEY(paper_id)
+		REFERENCES paper(id)
+		ON DELETE CASCADE,
+	FOREIGN KEY(citation_id)
+		REFERENCES paper(id)
+		ON DELETE SET NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1;

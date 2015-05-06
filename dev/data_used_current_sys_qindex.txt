@@ -1,0 +1,35 @@
+Authors:
+	id
+	name
+	affiliation
+	url
+	timestamps(create/update)
+	
+	
+Author works:
+	id
+	title
+	authors
+	publisher
+	publisher_in_google
+	citations_url
+	rank_publisher
+	citations
+	quality_citations
+	year
+	author_id
+	timestamps(create/update)
+	
+
+Citing works:
+	id
+	name
+	authors
+	publisher
+	publisher_in_google
+	publisher_in_external_web
+	url
+	rank_publisher
+	year
+	author_work_id
+	timestamps(create/update)
