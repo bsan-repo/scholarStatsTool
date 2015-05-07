@@ -25,8 +25,8 @@
 class QueryMsa {
     // The url cannot be longer of 2048 chars. Considering a fixed size per ID of 18 chars + the number (up to 6 chars) = 24 chars
     // plus the rest of the url approx. 100 chars
-    // url_size(approx.) = CITATIONS_PER_REQUEST(80)*24+100 = 2020chars
-    const CITATIONS_PER_REQUEST = 80; 
+    // url_size(approx.) = MAX_RECORDS_PER_QUERY(80)*24+100 = 2020chars
+    const MAX_RECORDS_PER_QUERY = 80; 
     private $msaKey = 'czbHGlnM+XsO89ECula7oXpWXFZ75qlzpxm402Spf7M';
     
     // Paper_Author?$count&$filter=AuthorID%20eq%20599994
@@ -73,26 +73,41 @@ class QueryMsa {
     
     // TODO Ensure that if not all the records are broght then functionality 
     // to query al least a number of defined entries is implemented
-    public function searchAuthorPapers($authorMsaId){
+    public function searchAuthorPapers($authorMsaId, $skipOffset){
         $query = 'Paper_Author?$filter=AuthorID%20eq%20'.$authorMsaId;
+        if($skipOffset > 0){
+            $query = $query.'&$skip='.$skipOffset;
+        }
         $jsonResults = $this->queryData($query);
         return $jsonResults;
     }
     
     public function searchPapers($papersIds){
+        if(count($papersIds)<= 0){
+            return array();
+        }
         $idsStr = $this->joinIdsForFilter($papersIds);
         $query = 'Paper?$filter='.$idsStr;
         $jsonResults = $this->queryData($query);
         return $jsonResults;
     }
     
-    public function searchPaperReferences($paperId){
+    public function searchPaperReferences($paperId, $skipOffset){
+        if(isset($paperId)<= 0){
+            return array();
+        }
         $query = 'Paper_Ref?$filter=DstID%20eq%20'.$paperId;
+        if($skipOffset > 0){
+            $query = $query.'&$skip='.$skipOffset;
+        }
         $jsonResults = $this->queryData($query);
         return $jsonResults;
     }
     
     public function searchJournals($journalIds){
+        if(count($journalIds)<= 0){
+            return array();
+        }
         $idsStr = $this->joinIdsForFilter($journalIds);
         $query = 'Journal?$filter='.$idsStr;
         $jsonResults = $this->queryData($query);
@@ -100,6 +115,9 @@ class QueryMsa {
     }
     
     public function searchConferences($conferenceIds){
+        if(count($conferenceIds)<= 0){
+            return array();
+        }
         $idsStr = $this->joinIdsForFilter($conferenceIds);
         $query = 'Conference?$filter='.$idsStr;
         $jsonResults = $this->queryData($query);
@@ -107,6 +125,9 @@ class QueryMsa {
     }
     
     public function searchAffiliations($affiliationIds){
+        if(count($affiliationIds)<= 0){
+            return array();
+        }
         $idsStr = $this->joinIdsForFilter($affiliationIds);
         $query = 'Affiliation?$filter='.$idsStr;
         $jsonResults = $this->queryData($query);
