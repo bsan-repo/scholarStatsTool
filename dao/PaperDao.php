@@ -61,7 +61,7 @@ class PaperDao {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
-            $stmt = $db->query('SELECT id, msa_journal_id FROM paper WHERE journal_id=NULL AND msa_conference_id=NULL AND msa_journal_id!=NULL');
+            $stmt = $db->query('SELECT id, msa_journal_id FROM paper WHERE journal_id is NULL AND msa_conference_id=0 AND msa_journal_id!=0');
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt = null;
@@ -71,7 +71,7 @@ class PaperDao {
                 $papers[$index] = new Paper();
                 $papers[$index]->id = $result['id'];
                 $papers[$index]->msaJournalId = $result['msa_journal_id'];
-                $counter++;
+                $index++;
             }
         } catch(PDOException $ex) {
             echo "DB Exception: ".$ex->getMessage();
@@ -87,7 +87,7 @@ class PaperDao {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
-            $stmt = $db->query('SELECT id, msa_conference_id FROM paper WHERE conference_id=NULL AND msa_journal_id=NULL AND msa_conference_id!=NULL');
+            $stmt = $db->query('SELECT id, msa_conference_id FROM paper WHERE conference_id is NULL AND msa_journal_id=0 AND msa_conference_id!=0');
             
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -98,7 +98,7 @@ class PaperDao {
                 $papers[$index] = new Paper();
                 $papers[$index]->id = $result['id'];
                 $papers[$index]->msaConferenceId = $result['msa_conference_id'];
-                $counter++;
+                $index++;
             }
         } catch(PDOException $ex) {
             echo "DB Exception: ".$ex->getMessage();
@@ -107,7 +107,7 @@ class PaperDao {
         }
         return $papers;
     }
-    
+    // TODO check methods that are no longer required
     public function updateJournalIdForPaper(&$paper){
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
