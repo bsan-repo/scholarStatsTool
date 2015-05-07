@@ -20,29 +20,6 @@ class ExtractAcademicsJournals {
         $this->jsonToObj = new JsonToObject();
     }
     
-    private function setJournalIdToPaperArray($batchCount, $papers, $journalsFound){
-        $countPaper = $batchCount*QueryMsa::CITATIONS_PER_REQUEST;
-        $countJournal = 0;
-        // Iterate for the size of the batch without exceding the number
-        // of elements in authorPapers
-        for($count = 0; $count < QueryMsa::CITATIONS_PER_REQUEST, $countPaper < count($papers); $count++){
-            if(isset($papers[$countPaper])){
-                $paper = $papers[$countPaper];
-                if(isset($journalsFound[$countJournal]) && $paper->msaJournalId == $journalsFound[$countJournal]->msaId){
-                    $paper->journalId = $journalsFound[$countJournal]->id;
-                }else{
-                    foreach($journalsFound as $journalFound){
-                        if($paper->msaJournalId == $journalFound->msaId){
-                            $paper->journalId = $journalFound->id;
-                        }
-                    }
-                }
-                $countPaper++;
-            }
-            $countPaper++;
-        }
-    }
-    
     private function saveJournals(&$journals){
         $journalDao = new JournalDao();
         foreach($journals as $journal){
@@ -50,13 +27,12 @@ class ExtractAcademicsJournals {
         }
     }
     
-    private function searchJournalsByIds($batchCount, &$papers, $journalIds){
+    private function searchJournalsByIds($batchCount, $journalIds){
         $papersFound = array();
         $jsonResults = $this->queryMsa->searchJournals($journalIds);
         if(isset($jsonResults)){
             $journalsFound = $this->jsonToObj->toJournals($jsonResults);
             $this->saveJournals($journalsFound);
-            $this->setJournalIdToPaperArray($batchCount, $papers, $journalsFound);
         }
         return $papersFound;
     }
@@ -73,9 +49,9 @@ class ExtractAcademicsJournals {
         
         foreach($papers as $paper){
             $flush = false;
-            $recordIds[$count] = $paperRef->msaPaperId;
-            if($count >= QueryMsa::CITATIONS_PER_REQUEST){
-                $this->searchJournalsByIds($batchCount, $papers, $recordIds);
+            $recordIds[$count] = $paper->msaJournalId;
+            if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                $this->searchJournalsByIds($batchCount, $recordIds);
                 $count = 0;
                 unset($recordIds);
                 $recordIds = array();
@@ -86,8 +62,8 @@ class ExtractAcademicsJournals {
             }
         }
         
-        if($flush == false){
-            $this->searchJournalsByIds($batchCount, $papers, $recordIds);
+        if($flush == false && count($recordIds)> 0){
+            $this->searchJournalsByIds($batchCount, $recordIds);
         }
         
         // Update the papers journal ids

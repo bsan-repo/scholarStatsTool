@@ -17,9 +17,11 @@ include_once 'dataObject/Author.php';
 include_once 'dataObject/AuthorDetails.php';
 include_once 'QueryMsa.php';
 include_once 'JsonToObject.php';
+include_once 'ExtractAcademicsJournals.php';
+include_once 'ExtractAcademicsConferences.php';
+include_once 'ExtractAcademicsReferences.php';
 
 class ExtractAcademicsData {
-    const AUTHOR_BATCH_NUMBER = 50;
     private $queryMsa;
     private $jsonToObj;
     
@@ -54,9 +56,22 @@ class ExtractAcademicsData {
     
     private function searchAuthorPapers($authorMsaId, $authorId){
         $authorPapers = array();
-        $jsonResults = $this->queryMsa->searchAuthorPapers($authorMsaId);
-        if(isset($jsonResults)){
-            $authorPapers = $this->jsonToObj->toAuthorPapers($jsonResults);
+        $queryMorePapers = true;
+        $skipOffset = 0;
+        // Retrieve all the records quering by batches defined by the max number of 
+        // request per query 
+        while($queryMorePapers){
+            $jsonResults = $this->queryMsa->searchAuthorPapers($authorMsaId, $skipOffset);
+            if(isset($jsonResults)){
+                $authorPapersFound = $this->jsonToObj->toAuthorPapers($jsonResults);
+                $authorPapers = $authorPapersFound;
+                if(count($authorPapers) < QueryMsa::MAX_RECORDS_PER_QUERY){
+                    $queryMorePapers = false;
+                }
+            }else{
+                $queryMorePapers = false;
+            }
+            $skipOffset += QueryMsa::MAX_RECORDS_PER_QUERY;
         }
         // Set the author id in the DB for all the found author papers
         foreach($authorPapers as $authorPaper){
@@ -65,39 +80,11 @@ class ExtractAcademicsData {
         return $authorPapers;
     }
     
-    private function setPaperIdToAuthorPaperArray($batchCount, &$authorPapers, &$papers){
-        // Batch count is used to determine the author offset using the 
-        // current batch count and the number of citations per batch 
-        // (CITATIONS_PER_REQUEST).
-        $countAuthorPaper = $batchCount*QueryMsa::CITATIONS_PER_REQUEST;
-        $countPaper = 0;
-        // Iterate for the size of the batch without exceding the number
-        // of elements in authorPapers
-        for($count = 0; $count < QueryMsa::CITATIONS_PER_REQUEST, $countAuthorPaper < count($authorPapers); $count++){
-            if(isset($authorPapers[$countAuthorPaper])){
-                $authorPaper = $authorPapers[$countAuthorPaper];
-                if(isset($papers[$countPaper]) && $authorPaper->msaPaperId == $papers[$countPaper]->msaId){
-                    $authorPaper->paperId = $papers[$countPaper]->id;
-                }else{
-                    foreach($papers as $paper){
-                        if($authorPaper->msaPaperId == $paper->msaId){
-                            $authorPaper->paperId = $paper->id;
-                        }
-                    }
-                }
-                $countPaper++;
-                $countAuthorPaper++;
-            }
-        }
-    }
-    
-    private function searchPapersByIds($batchCount, &$authorPapers, $papersIds){
+    private function searchPapersByIds($batchCount, $papersIds){
         $papersFound = array();
         $jsonResults = $this->queryMsa->searchPapers($papersIds);
         if(isset($jsonResults)){
             $papersFound = $this->jsonToObj->toPapers($jsonResults);
-            $this->savePapers($papersFound);
-            $this->setPaperIdToAuthorPaperArray($batchCount, $authorPapers, $papersFound);
         }
         return $papersFound;
     }
@@ -109,10 +96,21 @@ class ExtractAcademicsData {
         $flush = false;
         $batchCount = 0;
         foreach($authorPapers as $authorPaper){
+            print("Paper to search msa id: ".$authorPaper->msaPaperId."\n");
+        }
+        foreach($authorPapers as $authorPaper){
             $flush = false;
             $papersIds[$count] = $authorPaper->msaPaperId;
-            if($count >= QueryMsa::CITATIONS_PER_REQUEST){
-                $papersFound = $this->searchPapersByIds($batchCount, $authorPapers, $papersIds);
+            if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                
+                    print("\n\n dump ids \n");
+                    var_dump($papersIds);
+                    $papersIds = array_unique($papersIds, SORT_NUMERIC);
+                    print("\n\n dump ids without duplicates \n");
+                    var_dump($papersIds);
+                    print("\n\n");
+                    
+                $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
                 $papers = $papers + $papersFound;
                 $count = 0;
                 unset($papersIds);
@@ -123,8 +121,8 @@ class ExtractAcademicsData {
                 $count++;
             }
         }
-        if($flush == false){
-            $papersFound = $this->searchPapersByIds($batchCount, $authorPapers, $papersIds);
+        if($flush == false && count($papersIds)> 0){
+            $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
             $papers = $papers + $papersFound;
         }
         return $papers;
@@ -151,13 +149,20 @@ class ExtractAcademicsData {
         }
     }
 
-    // TODO Verify the structure of the data in azure for the src and dst 
-    // corresponds with the paper and citation structure in this app
     private function searchPaperReferences($paperMsaId, $paperId){
         $paperRefs = array();
-        $jsonResults = $this->queryMsa->searchPaperReferences($paperMsaId);
-        if(isset($jsonResults)){
-            $paperRefs = $this->jsonToObj->toPaperReferences($jsonResults);
+        $queryMoreReferences = true;
+        $skipOffset = 0;
+        while($queryMoreReferences){
+            $jsonResults = $this->queryMsa->searchPaperReferences($paperMsaId, $skipOffset);
+            if(isset($jsonResults)){
+                $paperRefs = $this->jsonToObj->toPaperReferences($jsonResults);
+                if(count($paperRefs) < QueryMsa::MAX_RECORDS_PER_QUERY){
+                    $queryMoreReferences = false;
+                }
+            }else{
+                $queryMoreReferences = false;
+            }
         }
         // Set the author id in the DB for all the found author papers
         foreach($paperRefs as $paperRef){
@@ -166,53 +171,9 @@ class ExtractAcademicsData {
         return $paperRefs;
     }
     
-    // Retreive the papers for the references (citation) and stores them to the DB
-    // The id of the paper is added to the reference -> citation
-    public function retrievePapersForReferences(&$paperRefs){
-        $paperDao = new PaperDao();
-        $queryMsa = new QueryMsa();
-        $paperIds = array();
-        $papers = array();
-        
-        foreach($paperRefs as $paperRef){
-            if($paperDao->doPaperExist($paperRef->$msaCitationId) == false){
-                
-                
-                
-                
-                
-        $papersIds = array();
-        $count = 0;
-        $flush = false;
-        $batchCount = 0;
-        foreach($authorPapers as $authorPaper){
-            $flush = false;
-            $papersIds[$count] = $authorPaper->msaPaperId;
-            if($count >= QueryMsa::CITATIONS_PER_REQUEST){
-                $papersFound = $this->searchPapersByIds($batchCount, $authorPapers, $papersIds);
-                $papers = $papers + $papersFound;
-                $count = 0;
-                unset($papersIds);
-                $papersIds = array();
-                $flush = true;
-                $batchCount++;
-            }else{
-                $count++;
-            }
-        }
-        if($flush == false){
-            $papersFound = $this->searchPapersByIds($batchCount, $authorPapers, $papersIds);
-            $papers = $papers + $papersFound;
-        }
-                
-                
-                
-                
-                
-                
-                $queryMsa->searchPapers($papersIds);
-            }
-        }
+    public function retrieveJournalsAndConferencesForPapers(){
+        (new ExtractAcademicsJournals)->retrieveJournalsForPapers();
+        (new ExtractAcademicsConferences)->retrieveJournalsForPapers();
     }
     
     // Processes a batch of authors:
@@ -229,7 +190,8 @@ class ExtractAcademicsData {
     //              Journal(Paper.journal_id)
     //              Conference(Paper.conference_id)
     //
-    public function processBatch(){
+    public function processBatch(){/*
+        print("Retrieving authors to process\n");
         $authorToSearchDao = new AuthorToSearchDao();
         $authorsToProcess = $authorToSearchDao->findAuthorsToProcess();
         
@@ -238,28 +200,40 @@ class ExtractAcademicsData {
             $authorResults = $this->searchAuthorByName($authorToProcess->name);
             $this->saveAuthorsToDB($authorResults);
             
+            print("Retrieving authors for ".$authorToProcess->name."\n");
+            
             // Iterate over Authors results for the given name
             foreach($authorResults as $authorResult){
+                
+                print("Retrieving author papers for ".$authorResult->details->msaId."\n");
+            
                 $authorMsaId = $authorResult->details->msaId;
                 // Get the author papers
                 $authorPapers = $this->searchAuthorPapers($authorMsaId, $authorResult->id);
                 
+                print("Retrieving papers for ".$authorResult->details->msaId."\n");
                 // Get the papers data
                 $papers = $this->searchPapers($authorPapers);
                 
                 // Save author papers and papers to the DB
                 $this->saveAuthorPapers($authorPapers);
                 
+                $this->savePapers($papers);
+                
                 // Iterate over Paper references for each one
                 foreach($papers as $paper){
                     $paperRefs = $this->searchPaperReferences($paper->msaId, $paper->id);
                     
+                    // Can be refactored by handling it as a case where all the ref that have 
+                    // not been set with a paper id
+                    $papersForRefs = (new ExtractAcademicsReferences())->retrievePapersForReferences($paperRefs);
                     $this->savePaperReferences($paperRefs);
+                    
+                    $this->savePapers($papersForRefs);
                 }
             }
             $authorToSearchDao->setAuthorAsProcessed($authorToProcess->id);
-        }
-        // TODO Retrieve using the msa ids the papers in the citations and the journals and conferences
-        // checking they are not already in the DB
+        }*/
+        $this->retrieveJournalsAndConferencesForPapers();
     }
 }
