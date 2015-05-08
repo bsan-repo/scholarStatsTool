@@ -14,6 +14,7 @@
 class AuthorDetails {
     public $id;
     public $msaId;
+    // Currently affialiation_id is only used in DAO for ref the affialiation
     public $affiliation;
     public $msaAffiliationId;
     public $researchInterest;

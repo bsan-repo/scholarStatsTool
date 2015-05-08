@@ -28,11 +28,15 @@ CREATE TABLE IF NOT EXISTS affiliation(
 CREATE TABLE IF NOT EXISTS author_details(
 	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
 	msa_id INTEGER,
+	affiliation_id INTEGER,
 	affiliation VARCHAR(255),
 	msa_affiliation_id INTEGER,
 	research_interest VARCHAR(255),
 	homepage_url VARCHAR(255),
-	version INTEGER
+	version INTEGER,
+	FOREIGN KEY(affiliation_id)
+		REFERENCES affiliation(id)
+		ON DELETE SET NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS author(
@@ -128,5 +132,5 @@ CREATE TABLE IF NOT EXISTS paper_ref(
 		ON DELETE CASCADE,
 	FOREIGN KEY(citation_id)
 		REFERENCES paper(id)
-		ON DELETE SET NULL
+		ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=latin1;

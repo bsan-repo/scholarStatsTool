@@ -33,4 +33,22 @@ class AuthorPaperDao {
             $db = null;
         }
     }
+    
+    public function fixPaperForeignKey(){
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->query('UPDATE author_paper as ap LEFT JOIN paper as p ON ap.msa_paper_id = p.msa_id SET ap.paper_id = p.id where ap.paper_id = p.id is NULL AND ap.msa_paper_id != 0');
+            $affectedRows = $stmt->execute();
+ 
+            $stmt->closeCursor();
+            $stmt = null;
+            print('Updated author paper - paper fk: '.$affectedRows."\n");
+            
+        }catch(PDOException $ex) {
+            echo "DB Exception(AuthorPaperDao): ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+    }
 }

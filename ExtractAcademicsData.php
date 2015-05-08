@@ -20,6 +20,7 @@ include_once 'JsonToObject.php';
 include_once 'ExtractAcademicsJournals.php';
 include_once 'ExtractAcademicsConferences.php';
 include_once 'ExtractAcademicsReferences.php';
+include_once 'ExtractAcademicsAffiliations.php';
 
 class ExtractAcademicsData {
     private $queryMsa;
@@ -100,29 +101,25 @@ class ExtractAcademicsData {
         }
         foreach($authorPapers as $authorPaper){
             $flush = false;
-            $papersIds[$count] = $authorPaper->msaPaperId;
-            if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
-                
-                    print("\n\n dump ids \n");
-                    var_dump($papersIds);
-                    $papersIds = array_unique($papersIds, SORT_NUMERIC);
-                    print("\n\n dump ids without duplicates \n");
-                    var_dump($papersIds);
-                    print("\n\n");
-                    
-                $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
-                $papers = $papers + $papersFound;
-                $count = 0;
-                unset($papersIds);
-                $papersIds = array();
-                $flush = true;
-                $batchCount++;
-            }else{
-                $count++;
+            if($authorPaper->msaPaperId > 0){
+                $papersIds[$count] = $authorPaper->msaPaperId;
+                if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                    $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
+                    $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
+                    $papers = $papers + $papersFound;
+                    $count = 0;
+                    unset($papersIds);
+                    $papersIds = array();
+                    $flush = true;
+                    $batchCount++;
+                }else{
+                    $count++;
+                }
             }
         }
         if($flush == false && count($papersIds)> 0){
-            $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
+            $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
+            $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
             $papers = $papers + $papersFound;
         }
         return $papers;
@@ -171,9 +168,12 @@ class ExtractAcademicsData {
         return $paperRefs;
     }
     
-    public function retrieveJournalsAndConferencesForPapers(){
+    private function retrieveJournalsAndConferencesForPapers(){
         (new ExtractAcademicsJournals)->retrieveJournalsForPapers();
-        (new ExtractAcademicsConferences)->retrieveJournalsForPapers();
+        (new ExtractAcademicsConferences)->retrieveConferencesForPapers();
+        // Fix foreign keys using the msa ids
+        (new AuthorPaperDao())->fixPaperForeignKey();
+        (new PaperReferenceDao())->fixPaperCitationForeignKey();
     }
     
     // Processes a batch of authors:
@@ -190,7 +190,7 @@ class ExtractAcademicsData {
     //              Journal(Paper.journal_id)
     //              Conference(Paper.conference_id)
     //
-    public function processBatch(){/*
+    public function processBatch(){
         print("Retrieving authors to process\n");
         $authorToSearchDao = new AuthorToSearchDao();
         $authorsToProcess = $authorToSearchDao->findAuthorsToProcess();
@@ -233,7 +233,11 @@ class ExtractAcademicsData {
                 }
             }
             $authorToSearchDao->setAuthorAsProcessed($authorToProcess->id);
-        }*/
+        }
         $this->retrieveJournalsAndConferencesForPapers();
+        
+        (new ExtractAcademicsAffiliations())->retrieveAffiliationsForAuthors();
+        (new AuthorDetailsDao())->fixAffiliationForeignKey();
+        
     }
 }

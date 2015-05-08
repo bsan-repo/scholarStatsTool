@@ -28,16 +28,16 @@ class ExtractAcademicsConferences {
     }
     
     private function searchConferencesByIds($batchCount, $conferenceIds){
-        $papersFound = array();
-        $jsonResults = $this->queryMsa->searchJournals($conferenceIds);
+        $conferencesFound = array();
+        $jsonResults = $this->queryMsa->searchConferences($conferenceIds);
         if(isset($jsonResults)){
-            $conferencesFound = $this->jsonToObj->toJournals($jsonResults);
+            $conferencesFound = $this->jsonToObj->toConferences($jsonResults);
             $this->saveConferences($conferencesFound);
         }
-        return $papersFound;
+        return $conferencesFound;
     }
     
-    public function retrieveJournalsForPapers(){
+    public function retrieveConferencesForPapers(){
         $paperDao = new PaperDao();
         // Papers without journal
         $papers = $paperDao->findPapersWithoutConference();
@@ -49,26 +49,25 @@ class ExtractAcademicsConferences {
         
         foreach($papers as $paper){
             $flush = false;
-            $recordIds[$count] = $paper->msaConferenceId;
-            if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
-                $this->searchConferencesByIds($batchCount, $recordIds);
-                $count = 0;
-                unset($recordIds);
-                $recordIds = array();
-                $flush = true;
-                $batchCount++;
-            }else{
-                $count++;
+            if($paper->msaConferenceId > 0){
+                $recordIds[$count] = $paper->msaConferenceId;
+                if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                    $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
+                    $this->searchConferencesByIds($batchCount, $recordIdsUnique);
+                    $count = 0;
+                    unset($recordIds);
+                    $recordIds = array();
+                    $flush = true;
+                    $batchCount++;
+                }else{
+                    $count++;
+                }
             }
         }
         
         if($flush == false && count($recordIds)> 0){
-            $this->searchConferencesByIds($batchCount, $recordIds);
-        }
-        
-        // Update the papers journal ids
-        foreach($papers as $paper){
-            $paperDao->updateJournalIdForPaper($paper);
+            $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
+            $this->searchConferencesByIds($batchCount, $recordIdsUnique);
         }
     }
 }

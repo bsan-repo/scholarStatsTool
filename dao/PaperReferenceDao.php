@@ -33,4 +33,22 @@ class PaperReferenceDao {
             $db = null;
         }
     }
+    
+    public function fixPaperCitationForeignKey(){
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->query('UPDATE paper_ref as pf LEFT JOIN paper as p ON pf.msa_citation_id = p.msa_id SET pf.citation_id = p.id where pf.citation_id is NULL AND pf.msa_citation_id != 0');
+            $affectedRows = $stmt->execute();
+ 
+            $stmt->closeCursor();
+            $stmt = null;
+            print('Updated paper ref - citation refs: '.$affectedRows."\n");
+            
+        }catch(PDOException $ex) {
+            echo "DB Exception(PaperReferenceDao): ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+    }
 }

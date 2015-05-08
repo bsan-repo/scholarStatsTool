@@ -28,13 +28,13 @@ class ExtractAcademicsJournals {
     }
     
     private function searchJournalsByIds($batchCount, $journalIds){
-        $papersFound = array();
+        $journalsFound = array();
         $jsonResults = $this->queryMsa->searchJournals($journalIds);
         if(isset($jsonResults)){
             $journalsFound = $this->jsonToObj->toJournals($jsonResults);
             $this->saveJournals($journalsFound);
         }
-        return $papersFound;
+        return $journalsFound;
     }
     
     public function retrieveJournalsForPapers(){
@@ -49,26 +49,25 @@ class ExtractAcademicsJournals {
         
         foreach($papers as $paper){
             $flush = false;
-            $recordIds[$count] = $paper->msaJournalId;
-            if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
-                $this->searchJournalsByIds($batchCount, $recordIds);
-                $count = 0;
-                unset($recordIds);
-                $recordIds = array();
-                $flush = true;
-                $batchCount++;
-            }else{
-                $count++;
+            if($paper->msaJournalId > 0){
+                $recordIds[$count] = $paper->msaJournalId;
+                if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                    $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
+                    $this->searchJournalsByIds($batchCount, $recordIdsUnique);
+                    $count = 0;
+                    unset($recordIds);
+                    $recordIds = array();
+                    $flush = true;
+                    $batchCount++;
+                }else{
+                    $count++;
+                }
             }
         }
         
         if($flush == false && count($recordIds)> 0){
-            $this->searchJournalsByIds($batchCount, $recordIds);
-        }
-        
-        // Update the papers journal ids
-        foreach($papers as $paper){
-            $paperDao->updateJournalIdForPaper($paper);
+            $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
+            $this->searchJournalsByIds($batchCount, $recordIdsUnique);
         }
     }
 }

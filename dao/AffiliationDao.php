@@ -33,4 +33,26 @@ class AffiliationDao {
             $db = null;
         }
     }
+    
+    public function findIdByMsaId($recordMsaId){
+        $id = null;
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->prepare('select id from affiliation where msa_id=?');
+            $stmt->execute(array($recordMsaId));
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
+            
+            if (isset($result)){
+                $id = $result['id'];
+            }
+            
+        } catch(PDOException $ex) {
+            echo "DB Exception: ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+        return $id;
+    }
 }

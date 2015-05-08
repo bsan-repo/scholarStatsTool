@@ -53,6 +53,7 @@ class PaperDao {
         }finally{
             $db = null;
         }
+        return $id;
     }
     
     // Returned papers contain only the id and the journal msa id
@@ -107,38 +108,23 @@ class PaperDao {
         }
         return $papers;
     }
-    // TODO check methods that are no longer required
-    public function updateJournalIdForPaper(&$paper){
-        try {
-            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
-            
-            $stmt = $db->prepare('update paper journal_id=? where id=?');
-            $affectedRows = $stmt->execute(array($paper->journalId, $paper->id));
-            
-            $stmt->closeCursor();
-            $stmt = null;
-            print('Updated paper ['.$paper->id.'] (journal id): '.$affectedRows."\n");
-            
-        }catch(PDOException $ex) {
-            echo "DB Exception(PaperDao): ".$ex->getMessage();
-        }finally{
-            $db = null;
-        }
-    }
     
-    public function updateConferenceIdForPaper(&$paper){
+    public function fixJournalsAndConferencesForeignKey(){
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
-            $stmt = $db->prepare('update paper conference_id=? where id=?');
-            $affectedRows = $stmt->execute(array($paper->conferenceId, $paper->id));
+            $stmt = $db->query('UPDATE paper as p LEFT JOIN journal as j ON p.msa_journal_id = j.msa_id SET p.journal_id = j.id where p.journal_id is NULL AND p.msa_journal_id != 0');
+            $affectedRows = $stmt->execute();
+            
+            $stmt = $db->query('UPDATE paper as p LEFT JOIN conference as cf ON p.msa_conference_id = cf.msa_id SET p.conference_id = cf.id where p.conference_id is NULL AND p.msa_conference_id != 0');
+            $affectedRows = $stmt->execute();
  
             $stmt->closeCursor();
             $stmt = null;
-            print('Updated paper ['.$paper->id.'] (conference id): '.$affectedRows."\n");
+            print('Updated author details - affiliations: '.$affectedRows."\n");
             
         }catch(PDOException $ex) {
-            echo "DB Exception(PaperDao): ".$ex->getMessage();
+            echo "DB Exception(PaperReferenceDao): ".$ex->getMessage();
         }finally{
             $db = null;
         }

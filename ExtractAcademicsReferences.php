@@ -40,7 +40,7 @@ class ExtractAcademicsReferences {
         $papers = array();
         foreach($paperRefs as $paperRef){
             $foundIdForMsaId = $paperDao->findIdByMsaId($paperRef->msaCitationId);
-            if(isset($foundIdForMsaId) == false){
+            if(isset($foundIdForMsaId) == false && $paperRef->msaCitationId > 0){
                 $flush = false;
                 $papersIds[$count] = $paperRef->msaCitationId;
                 if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
@@ -50,13 +50,8 @@ class ExtractAcademicsReferences {
                     
                     // The returned papers are already stored to the DB
                     // Remove duplicates
-                    print("\n\n dump ids \n");
-                    var_dump($papersIds);
-                    $papersIds = array_unique($papersIds, SORT_NUMERIC);
-                    print("\n\n dump ids without duplicates \n");
-                    var_dump($papersIds);
-                    print("\n\n");
-                    $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
+                    $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
+                    $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
                     $papers = $papers + $papersFound;
                     $count = 0;
                     unset($papersIds);
@@ -72,7 +67,8 @@ class ExtractAcademicsReferences {
         }
         if($flush == false && count($papersIds)> 0){
         // The returned papers are already stored to the DB
-            $papersFound = $this->searchPapersByIds($batchCount, $papersIds);
+            $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
+            $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
             $papers = $papers + $papersFound;
         }
         // The returned papers are already stored to the DB

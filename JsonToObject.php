@@ -55,6 +55,26 @@ class JsonToObject {
         return $authorPapers;
     }
     
+    public function toAffiliations($jsonResults){
+        $affiliations = array();
+        $index = 0;
+        try{
+            $results = $jsonResults->{'d'}->{'results'};
+            foreach($results as $result){
+                $affiliation = new Affiliation();
+                $affiliation->msaId = $result->{'ID'};
+                $affiliation->officialName = $result->{'OfficialName'};
+                $affiliation->homepage = $result->{'Homepage'};
+                $affiliation->latitude = $result->{'Latitude'};
+                $affiliation->longitude = $result->{'Longitude'};
+                $affiliations[$index++] = $affiliation;
+            }
+        }catch(Exception $e){
+            echo "Exception parsing json for affiliations: ".$e->getMessage();
+        }
+        return $affiliations;
+    }
+    
     public function toPapers($jsonResults){
         $papers = array();
         $index = 0;
