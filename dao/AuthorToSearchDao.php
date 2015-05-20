@@ -39,7 +39,7 @@ class AuthorToSearchDao {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
-            $stmt = $db->query('select id, name, processed from author_to_search where processed=\'false\'');
+            $stmt = $db->query('select id, name, processed from author_to_search where processed=0');
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $stmt = null;
@@ -48,7 +48,7 @@ class AuthorToSearchDao {
                 $authorToSearch = new AuthorToSearch();
                 $authorToSearch->id = $result['id'];
                 $authorToSearch->name = $result['name'];
-                $authorToSearch->processed = $result['processed'];
+                $authorToSearch->processed = (bool)$result['processed'];
                 $authors[$index++] = $authorToSearch;
             }
             
@@ -83,7 +83,7 @@ class AuthorToSearchDao {
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
-            $stmt = $db->prepare('UPDATE author_to_search SET processed=\'true\' WHERE id=?');
+            $stmt = $db->prepare('UPDATE author_to_search SET processed=1 WHERE id=?');
             $affectedRows = $stmt->execute(array($authorId));
             $stmt->closeCursor();
             $stmt = null;

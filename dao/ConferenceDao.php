@@ -33,4 +33,22 @@ class ConferenceDao {
             $db = null;
         }
     }
+    
+    public function fixEraEntryForeignKey(){
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->query('UPDATE conference AS cn LEFT JOIN era_conference ec ON cn.fullname = ec.name OR cn.fullname = ec.acronym SET cn.era_entry = ec.id where cn.era_entry IS NULL');
+            $affectedRows = $stmt->execute();
+ 
+            $stmt->closeCursor();
+            $stmt = null;
+            print('Updated conferences - era entries: '.$affectedRows."\n");
+            
+        }catch(PDOException $ex) {
+            echo "DB Exception(ConferenceDao): ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+    }
 }

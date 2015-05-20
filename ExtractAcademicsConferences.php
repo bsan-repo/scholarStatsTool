@@ -69,5 +69,6 @@ class ExtractAcademicsConferences {
             $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
             $this->searchConferencesByIds($batchCount, $recordIdsUnique);
         }
+        (new ConferenceDao())->fixEraEntryForeignKey();
     }
 }

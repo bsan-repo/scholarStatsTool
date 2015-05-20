@@ -51,4 +51,30 @@ class AuthorPaperDao {
             $db = null;
         }
     }
+    
+    public function findAuthorPapersForAuthor($authorId){
+        $authors = array();
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->query('SELECT id, name, details_id FROM author');
+            $stmt->execute();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt = null;
+            
+            $index = 0;
+            foreach ($results as $result){
+                $authors[$index] = new AuthorDetails();
+                $authors[$index]->id = $result['id'];
+                $authors[$index]->name = $result['name'];
+                $authors[$index]->detailsId = $result['details_id'];
+                $index++;
+            }
+        } catch(PDOException $ex) {
+            echo "DB Exception (AuthorDao): ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+        return $authors;
+    }
 }

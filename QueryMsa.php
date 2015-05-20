@@ -23,6 +23,9 @@
 
 
 class QueryMsa {
+    // The max number of records returned by query and used to skip to the next batch
+    const RECORDS_PER_PAGE_QUERY = 100;
+    // Max number of records that can be queried by id
     // The url cannot be longer of 2048 chars. Considering a fixed size per ID of 18 chars + the number (up to 6 chars) = 24 chars
     // plus the rest of the url approx. 100 chars
     // url_size(approx.) = MAX_RECORDS_PER_QUERY(80)*24+100 = 2020chars
@@ -71,8 +74,6 @@ class QueryMsa {
         return $jsonResults;
     }
     
-    // TODO Ensure that if not all the records are broght then functionality 
-    // to query al least a number of defined entries is implemented
     public function searchAuthorPapers($authorMsaId, $skipOffset){
         $query = 'Paper_Author?$filter=AuthorID%20eq%20'.$authorMsaId;
         if($skipOffset > 0){

@@ -55,7 +55,7 @@ class ExtractAcademicsData {
         }
     }
     
-    private function searchAuthorPapers($authorMsaId, $authorId){
+    public function searchAuthorPapers($authorMsaId, $authorId){
         $authorPapers = array();
         $queryMorePapers = true;
         $skipOffset = 0;
@@ -65,14 +65,14 @@ class ExtractAcademicsData {
             $jsonResults = $this->queryMsa->searchAuthorPapers($authorMsaId, $skipOffset);
             if(isset($jsonResults)){
                 $authorPapersFound = $this->jsonToObj->toAuthorPapers($jsonResults);
-                $authorPapers = $authorPapersFound;
-                if(count($authorPapers) < QueryMsa::MAX_RECORDS_PER_QUERY){
+                $authorPapers = $authorPapers + $authorPapersFound;
+                if(count($authorPapersFound) < QueryMsa::RECORDS_PER_PAGE_QUERY){
                     $queryMorePapers = false;
                 }
             }else{
                 $queryMorePapers = false;
             }
-            $skipOffset += QueryMsa::MAX_RECORDS_PER_QUERY;
+            $skipOffset += QueryMsa::RECORDS_PER_PAGE_QUERY;
         }
         // Set the author id in the DB for all the found author papers
         foreach($authorPapers as $authorPaper){
@@ -146,20 +146,22 @@ class ExtractAcademicsData {
         }
     }
 
-    private function searchPaperReferences($paperMsaId, $paperId){
+    public function searchPaperReferences($paperMsaId, $paperId){
         $paperRefs = array();
         $queryMoreReferences = true;
         $skipOffset = 0;
         while($queryMoreReferences){
             $jsonResults = $this->queryMsa->searchPaperReferences($paperMsaId, $skipOffset);
             if(isset($jsonResults)){
-                $paperRefs = $this->jsonToObj->toPaperReferences($jsonResults);
-                if(count($paperRefs) < QueryMsa::MAX_RECORDS_PER_QUERY){
+                $paperRefsFound = $this->jsonToObj->toPaperReferences($jsonResults);
+                $paperRefs = $paperRefs + $paperRefsFound;
+                if(count($paperRefsFound) < QueryMsa::RECORDS_PER_PAGE_QUERY){
                     $queryMoreReferences = false;
                 }
             }else{
                 $queryMoreReferences = false;
             }
+            $skipOffset += QueryMsa::RECORDS_PER_PAGE_QUERY;
         }
         // Set the author id in the DB for all the found author papers
         foreach($paperRefs as $paperRef){
@@ -237,7 +239,9 @@ class ExtractAcademicsData {
         $this->retrieveJournalsAndConferencesForPapers();
         
         (new ExtractAcademicsAffiliations())->retrieveAffiliationsForAuthors();
+        
         (new AuthorDetailsDao())->fixAffiliationForeignKey();
         
+        (new PaperDao())->fixJournalsAndConferencesForeignKey();
     }
 }

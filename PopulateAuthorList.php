@@ -7,6 +7,7 @@
  */
 
 include_once('dataObject/AuthorToSearch.php');
+include_once('dao/AuthorToSearchDao.php');
 
 /**
  * Description of PopulateAuthorList

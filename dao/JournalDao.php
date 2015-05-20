@@ -33,4 +33,22 @@ class JournalDao {
             $db = null;
         }
     }
+    
+    public function fixEraEntryForeignKey(){
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->query('UPDATE journal AS j LEFT JOIN era_journal AS ej ON j.fullname = ej.name OR j.fullname = ej.acronym SET j.era_entry = ej.id where j.era_entry IS NULL');
+            $affectedRows = $stmt->execute();
+ 
+            $stmt->closeCursor();
+            $stmt = null;
+            print('Updated journals - era entries: '.$affectedRows."\n");
+            
+        }catch(PDOException $ex) {
+            echo "DB Exception(JournalDao): ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+    }
 }

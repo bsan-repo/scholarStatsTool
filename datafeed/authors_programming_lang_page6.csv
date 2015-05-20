@@ -1,100 +1,159 @@
-Matthew J. Parkinson 
-Tao Xie 
-William H. Harrison 
-Frank Mueller 
-Claude Kirchner 
-Farhad Arbab 
-Gregor Snelting 
-Emery D. Berger 
-Patrick Lam 
-Wolfram Schulte 
-Steven P. Reiss 
-Koen Lindstrom Claessen 
-Rachid Echahed 
-Rita Loogen 
-Zoltan Somogyi 
-Gregor Engels 
-Hongseok Yang 
-Christian Queinnec 
-Gilles Muller 
-Dominic Duggan 
-Cristina Videira Lopes 
-Gilles Pesant 
-Paola Inverardi 
-Carla P. Gomes 
-Dino Pedreschi 
-John Tang Boyland 
-Byron Cook 
-Luc Maranget 
-Jose Luiz Fiadeiro 
-Matthew Hennessy 
-Satish Chandra 
+Extract from copy paste from displayed page 
+^([^\t]|\t\s)\w.*$
+^\t
+^$\n
+\s$
+
+// page 2 programming languages authors -----------------------------------------------
+
+
+Amir Pnueli
+George Nemhauser
+Alan Borning
+Zohar Manna
+Radhia Cousot
+Gilad Bracha
+Tim Teitelbaum
+J. Gregory Morrisett
+David Macqueen
+Stephen M. Robinson
+Kevin Hammond
+Hanne Riis Nielson
+Suresh Jagannathan
+Thomas Gross
+John P. Gallagher
+Andreas Podelski
+Peter A. Lee
+William Pugh
+José Meseguer
+Dan Grossman
+Bjarne Stroustrup
+Jeffrey S. Foster
+Shaz Qadeer
+Perry C. Cheng
+Gul A. Agha
+Lars Birkedal
+Lee Naish
+Thomas Ball
+Andrzej Ruszczynski
+Paul Klint
+Linda Torczon
+Shinji Mizuno
+Ellis L. Johnson
+Joseph Goguen
+Greg Nelson
+Satoshi Matsuoka
+John Lloyd
+Zhenjiang Hu
+Peter Thiemann
+Bart Demoen
+Johan Jeuring
+Richard P. Gabriel
+Eelco Visser
+Jack W. Davidson
+David Clarke
+Walid Mohamed Taha
+Mira Mezini
+Guang R. Gao
+Robert Gluck
+R. Kent Dybvig
+Simon Marlow
+Karl Lieberherr
+Francisco Bueno
+Mario Tokoro
+Amr Sabry
+Andrew D. Gordon
+William D. Clinger
+Giuseppe Castagna
+Maria J. Garcia De La Banda
+Christian Schulte
+Nevin Heintze
+Michael G. Burke
+Gerard P. Cornuejols
+Peter Sestoft
+Stephen J. Fink
+David Sands
+Ali-reza Adl-tabatabai
+Matteo Fischetti
+Jeannette M. Wing
+Edsger Wybe Dijkstra
+Prof. Jeanne Ferrante
+Colin Runciman
+Masato Takeichi
+Konstantinos Sagonas
+Francesca Rossi
+Keshav K. Pingali
+
+
+
+
+// page 6 programming languages authors -----------------------------------------------
 Jacques Garrigue
-Stephen J. Wright 
-Peter D. Mosses 
-Erik Ruf 
-James Cheney 
-Philippe L. Toint 
-Andrea Lodi 
-Manuel Serrano 
-John Darlington 
-Andrea De Lucia 
-John Mellor-crummey 
-Remo Pareschi 
-Rainer Unland 
-Martin Bravenboer 
+Stephen J. Wright
+Peter D. Mosses
+Erik Ruf
+James Cheney
+Philippe L. Toint
+Andrea Lodi
+Manuel Serrano
+John Darlington
+Andrea De Lucia
+John Mellor-crummey
+Remo Pareschi
+Rainer Unland
+Martin Bravenboer
 Taisuke Sato
-B. Curtis Eaves 
-Barton Miller 
-Anne Rogers 
-Ganesh Sittampalam 
-Denis Caromel 
-James J. Horning 
-Bratin K. Saha 
-Trevor Jim 
-Robert Michael. Freund 
-Dorina Petriu 
+B. Curtis Eaves
+Barton Miller
+Anne Rogers
+Ganesh Sittampalam
+Denis Caromel
+James J. Horning
+Bratin K. Saha
+Trevor Jim
+Robert Michael. Freund
+Dorina Petriu
 Michael G. Hinchey
-Donald Sannella 
-Paul Feautrier 
-Samuel N. Kamin 
-Maurice Herlihy 
+Donald Sannella
+Paul Feautrier
+Samuel N. Kamin
+Maurice Herlihy
 Morten Heine B. Sorensen
-David W. Binkley 
-Giuliano Antoniol 
-James B. Orlin 
-David W. Wall 
-Manish Gupta 
-Richard H. Byrd 
-Ralph-Johan Back 
-Moshe Vardi 
-Fred C. Chow 
+David W. Binkley
+Giuliano Antoniol
+James B. Orlin
+David W. Wall
+Manish Gupta
+Richard H. Byrd
+Ralph-Johan Back
+Moshe Vardi
+Fred C. Chow
 Francois Laburthe
-Michael Papathomas 
-Richard J. Wallace 
-Mark A. Linton 
-John Lamping 
-David Turner 
-Matthias Zenger 
-Fred Glover 
-Laurence A. Wolsey 
-M. R. Rao 
-Jean-louis Lassez 
-John McCarthy 
-Toshihide Ibaraki 
-Cornelis J. Roos 
-Carsten K. Gomard 
-R. Tyrrell Rockafellar 
-David K. Gifford 
-Siddhartha Chatterjee 
-John Whaley 
-Kishor Trivedi 
+Michael Papathomas
+Richard J. Wallace
+Mark A. Linton
+John Lamping
+David Turner
+Matthias Zenger
+Fred Glover
+Laurence A. Wolsey
+M. R. Rao
+Jean-louis Lassez
+John McCarthy
+Toshihide Ibaraki
+Cornelis J. Roos
+Carsten K. Gomard
+R. Tyrrell Rockafellar
+David K. Gifford
+Siddhartha Chatterjee
+John Whaley
+Kishor Trivedi
 Haruo Hosoya
-Christine Paulin-mohring 
-Fergus James Henderson 
-Robert Muth 
-Gerald J. Sussman 
-John Warner Backus 
+Christine Paulin-mohring
+Fergus James Henderson
+Robert Muth
+Gerald J. Sussman
+John Warner Backus
 Xiaojun Chen
-Stavros A. Zenios 
-David A. Moon 
+Stavros A. Zenios
+David A. Moon

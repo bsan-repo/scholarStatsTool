@@ -303,6 +303,24 @@ class Test {
         
         $extractAcademicsData->processBatch();
     }
+    
+    public function testAuthorPapersForMoreOf100Records(){
+        $author = new Author();
+        $author->details = new AuthorDetails();
+        $author->details->msaId  = '848503';
+        (new AuthorDetailsDao())->insert($author->details);
+        $author->detailsId = $author->details->id;
+        $author->name = "Test author";
+        (new AuthorDao())->insert($author);
+        (new ExtractAcademicsData())->searchAuthorPapers($author->details->msaId, $author->id);
+    }
+    
+    public function testPaperWithMoreOf100Refs(){
+        $paper = new Paper();
+        $paper->msaId = "217495";
+        (new PaperDao())->insert($paper);
+        (new ExtractAcademicsData())->searchPaperReferences($paper->msaId, $paper->id);
+    }
 }
 
 /*

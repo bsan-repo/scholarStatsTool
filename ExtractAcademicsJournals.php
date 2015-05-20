@@ -69,5 +69,6 @@ class ExtractAcademicsJournals {
             $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
             $this->searchJournalsByIds($batchCount, $recordIdsUnique);
         }
+        (new JournalDao())->fixEraEntryForeignKey();
     }
 }
