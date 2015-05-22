@@ -21,43 +21,54 @@ class StatsDao {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname='.$databaseName.';charset=utf8', 'root', 'root');
             
             // Collect the author - author_paper - paper_ref data only for those authors who's stats haven't been calcualted yet
-            $stmt = $db->query('create temporary table tmp_author_paper_ref(author_id INTEGER, paper_id INTEGER, citation_id INTEGER)');
-            $stmt->execute();
-            $stmt = $db->query('insert into tmp_author_paper_ref(author_id, paper_id, citation_id) 
+            $stmt1 = $db->prepare('create temporary table tmp_author_paper_ref(author_id INTEGER, paper_id INTEGER, citation_id INTEGER)');
+            $stmt1->execute();
+            $stmt1->closeCursor();
+            $stmt2 = $db->prepare('insert into tmp_author_paper_ref(author_id, paper_id, citation_id) 
 select a_papers.author_id, a_papers.paper_id, pr.citation_id from (select a_to_process.author_id as author_id, ap.paper_id as paper_id from (select a.id as author_id from author as a LEFT JOIN author_stats as ast on a.id = ast.author_id where ast.author_id is null) as a_to_process left join author_paper as ap on a_to_process.author_id = ap.author_id) as a_papers left join paper_ref as pr on a_papers.paper_id = pr.paper_id');
-            $stmt->execute();
+            $stmt2->execute();
+            $stmt2->closeCursor();
             /////////////////////////////////////////////////
-            $stmt = $db->query('select * from tmp_author_paper_ref');
-            $stmt->execute();
-            $authorResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt3 = $db->prepare('select * from tmp_author_paper_ref');
+            $stmt3->execute();
+            $authorResults = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+            var_dump($authorResults);
+            $stmt3->closeCursor();
             /////////////////////////////////////////////////
             // Get the number of quality citations for each paper
-            $stmt = $db->query('create temporary table tmp_author_paper_qcits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
-            $stmt->execute();
-            $stmt = $db->query('insert into tmp_author_paper_qcits(author_id, paper_id, citation_count) 
+            $stmt4 = $db->prepare('create temporary table tmp_author_paper_qcits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
+            $stmt4->execute();
+            $stmt4->closeCursor();
+            $stmt5 = $db->prepare('insert into tmp_author_paper_qcits(author_id, paper_id, citation_count) 
 select apr.author_id, apr.paper_id, count(*) as qcits from tmp_author_paper_ref as apr LEFT JOIN paper as p on apr.citation_id = p.id where apr.citation_id is not null and (p.journal_id is not null or p.conference_id is not null) group by author_id, paper_id order by qcits DESC');
-            $stmt->execute();
+            $stmt5->execute();
+            $stmt5->closeCursor();
             /////////////////////////////////////////////////
-            $stmt = $db->query('select * from tmp_author_paper_qcits');
-            $stmt->execute();
-            $authorResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt6 = $db->prepare('select * from tmp_author_paper_qcits');
+            $stmt6->execute();
+            $authorResults = $stmt6->fetchAll(PDO::FETCH_ASSOC);
+            var_dump($authorResults);
+            $stmt6->closeCursor();
             /////////////////////////////////////////////////
             // Calculate the total citations for each paper
-            $stmt = $db->query('create temporary table tmp_author_paper_cits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
-            $stmt->execute();
-            $stmt = $db->query('insert into tmp_author_paper_cits(author_id, paper_id, citation_count) 
+            $stmt7 = $db->prepare('create temporary table tmp_author_paper_cits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
+            $stmt7->execute();
+            $stmt7->closeCursor();
+            $stmt8 = $db->query('insert into tmp_author_paper_cits(author_id, paper_id, citation_count) 
 select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref as apr LEFT JOIN paper as p on apr.citation_id = p.id group by author_id, paper_id order by cits DESC');
-            $stmt->execute();
+            $stmt8->execute();
+            $stmt8->closeCursor();
             /////////////////////////////////////////////////
-            $stmt = $db->query('select * from tmp_author_paper_cits');
-            $stmt->execute();
-            $authorResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt9 = $db->prepare('select * from tmp_author_paper_cits ');
+            $stmt9->execute();
+            $authorResults = $stmt9->fetchAll(PDO::FETCH_ASSOC);
+            $stmt9->closeCursor();
             /////////////////////////////////////////////////
             // Get the ids for all the authors which stats to be calculated 
-            $stmt = $db->query('select author_id from tmp_author_paper_qcits group by author_id');
-            $stmt->execute();
-            $authorResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $stmt = null;
+            $stmt10 = $db->prepare('select author_id from tmp_author_paper_qcits group by author_id');
+            $stmt10->execute();
+            $authorResults = $stmt10->fetchAll(PDO::FETCH_ASSOC);
+            $stmt10->closeCursor();
             $statsCalculated = 0;
             
             print("Authors to search:\n");
@@ -70,10 +81,13 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 $authorId = $authorResult['author_id'];
                 
                 // CALCUALTE THE Q INDEX
-                $stmt = $db->prepare('select citation_count from tmp_author_paper_qcits where author_id=? order by author_id, citation_count DESC');
-                $stmt->execute(array($authorId));
-                $qCitResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt11 = $db->prepare('select citation_count from tmp_author_paper_qcits where author_id=:authorId order by author_id, citation_count DESC');
+                $stmt11->bindValue(":authorId", $authorId);
+                $stmt11->execute();
+                $qCitResults = $stmt11->fetchAll(PDO::FETCH_ASSOC);
+                $stmt11->closeCursor();
+                
+                $stmt11 = null;
 
                 // Calculate the qindex using the result from the query
                 $qindex = 0;
@@ -89,10 +103,12 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("qindex: ".$qindex."\n");
                 
                 //  Get the total number of quality citations.
-                $stmt = $db->prepare('select sum(citation_count) as qcits_total from tmp_author_paper_qcits where author_id=?');
-                $stmt->execute(array($authorId));
-                $citsTotalResult = $stmt->fetch(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt12 = $db->prepare('select sum(citation_count) as qcits_total from tmp_author_paper_qcits where author_id=:authorId');
+                $stmt12->bindValue(":authorId", $authorId);
+                $stmt12->execute();
+                $citsTotalResult = $stmt12->fetch(PDO::FETCH_ASSOC);
+                $stmt12->closeCursor();
+                $stmt12 = null;
                 $qCitationsTotal = 0;
 
                 if (isset($citsTotalResult)){
@@ -101,10 +117,12 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("Q_Citation total: ".$qCitationsTotal."\n");
                 
                 // CALCUALTE THE H INDEX
-                $stmt = $db->prepare('select citation_count from tmp_author_paper_cits where author_id=? order by author_id, citation_count DESC');
-                $stmt->execute(array($authorId));
-                $citResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt13 = $db->prepare('select citation_count from tmp_author_paper_cits where author_id=:authorId order by author_id, citation_count DESC');
+                $stmt13->bindValue(":authorId", $authorId);
+                $stmt13->execute();
+                $citResults = $stmt13->fetchAll(PDO::FETCH_ASSOC);
+                $stmt13->closeCursor();
+                $stmt13 = null;
 
                 // Calculate the qindex using the result from the query
                 $hindex = 0;
@@ -120,10 +138,12 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("hindex: ".$hindex."\n");
                 
                 //  Get the total number of quality citations.
-                $stmt = $db->prepare('select sum(citation_count) as cits_total from tmp_author_paper_cits where author_id=?');
-                $stmt->execute(array($authorId));
-                $citsResults = $stmt->fetch(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt14 = $db->prepare('select sum(citation_count) as cits_total from tmp_author_paper_cits where author_id=:authorId');
+                $stmt14->bindValue(":authorId", $authorId);
+                $stmt14->execute();
+                $citsResults = $stmt14->fetch(PDO::FETCH_ASSOC);
+                $stmt14->closeCursor();
+                $stmt14 = null;
                 $citationsTotal = 0;
 
                 if (isset($citsResults)){
@@ -132,10 +152,12 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("Citation total: ".$citationsTotal."\n");
                 
                 //  Get the total number of publications.
-                $stmt = $db->prepare('select count(id) as publications from author_paper where author_id = ?');
-                $stmt->execute(array($authorId));
-                $publicationsTotalResult = $stmt->fetch(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt15 = $db->prepare('select count(id) as publications from author_paper where author_id = :authorId');
+                $stmt15->bindValue(":authorId", $authorId);
+                $stmt15->execute();
+                $publicationsTotalResult = $stmt15->fetch(PDO::FETCH_ASSOC);
+                $stmt15->closeCursor();
+                $stmt15 = null;
                 $publications = 0;
 
                 if (isset($publicationsTotalResult)){
@@ -144,10 +166,12 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("publications: ".$publications."\n");
                 
                 //  Get the total number of q publications.
-                $stmt = $db->prepare('select count(*) as qpublications from author_paper as ap left join paper as p on ap.paper_id=p.id where ap.author_id=? and (p.journal_id is not null or p.conference_id is not null)');
-                $stmt->execute(array($authorId));
-                $qPublicationsResult = $stmt->fetch(PDO::FETCH_ASSOC);
-                $stmt = null;
+                $stmt16 = $db->prepare('select count(*) as qpublications from author_paper as ap left join paper as p on ap.paper_id=p.id where ap.author_id=:authorId and (p.journal_id is not null or p.conference_id is not null)');
+                $stmt16->bindValue(":authorId", $authorId);
+                $stmt16->execute();
+                $qPublicationsResult = $stmt16->fetch(PDO::FETCH_ASSOC);
+                $stmt16->closeCursor();
+                $stmt16 = null;
                 $qpublications = 0;
 
                 if (isset($qPublicationsResult)){
@@ -156,8 +180,16 @@ select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref a
                 print("qPublicationsResult: ".$qpublications."\n");
                 
                 // Insert the author stats 
-                $stmt = $db->prepare('insert author_stats(author_id, publications, qpublications, citations, qcitations, hindex, qhindex) values(?, ?, ?, ?, ?, ?, ?)');
-                $affectedRows = $stmt->execute(array($authorId, $publications, $qpublications, $citationsTotal, $qCitationsTotal, $hindex, $qindex));
+                $stmt17 = $db->prepare('insert author_stats(author_id, publications, qpublications, citations, qcitations, hindex, qhindex) values(:authorId, :publications, :qpublications, :citationsTotal, :qCitationsTotal, :hindex, :qindex)');
+                $stmt17->bindValue(":authorId", $authorId);
+                $stmt17->bindValue(":publications", $publications);
+                $stmt17->bindValue(":qpublications", $qpublications);
+                $stmt17->bindValue(":citationsTotal", $citationsTotal);
+                $stmt17->bindValue(":qCitationsTotal", $qCitationsTotal);
+                $stmt17->bindValue(":hindex", $hindex);
+                $stmt17->bindValue(":qindex", $qindex);
+                $affectedRows = $stmt17->execute();
+                $stmt17->closeCursor();
                 $statsCalculated += $affectedRows;
                 print(">>>>>>> INSERTING STATS: ".$affectedRows);
             }

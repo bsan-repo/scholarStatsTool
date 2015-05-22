@@ -40,15 +40,15 @@ class App {
     public $authorsToSeachCsvFilePath = 'datafeed/processingAuthors.csv';
     
     public function run(){
-        /*
+        
         // REGULAR AUTHOR BATCH PROCESSING
         // Load authors names in csv file to the DB
         (new PopulateAuthorList())->populate($this->authorsToSeachCsvFilePath);
         
         // process authors added
         (new ExtractAcademicsData())->processBatch();
-         */
+         
         
-        (new StatsDao())->calculateStats();
+        //(new StatsDao())->calculateStats();
     }
 }
