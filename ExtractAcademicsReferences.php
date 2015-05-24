@@ -52,7 +52,7 @@ class ExtractAcademicsReferences {
                     // Remove duplicates
                     $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
                     $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
-                    $papers = $papers + $papersFound;
+                    $papers = array_merge($papers, $papersFound);
                     $count = 0;
                     unset($papersIds);
                     $papersIds = array();
@@ -69,7 +69,7 @@ class ExtractAcademicsReferences {
         // The returned papers are already stored to the DB
             $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
             $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
-            $papers = $papers + $papersFound;
+            $papers = array_merge($papers, $papersFound);
         }
         // The returned papers are already stored to the DB
         return $papers;

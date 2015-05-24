@@ -49,6 +49,6 @@ class App {
         (new ExtractAcademicsData())->processBatch();
          
         
-        //(new StatsDao())->calculateStats();
+        (new StatsDao())->calculateStats();
     }
 }

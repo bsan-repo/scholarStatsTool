@@ -17,7 +17,7 @@ class StatsDao {
     public function calculateStats(){
         $papers = array();
         try {
-            $databaseName = 'a75a1';
+            $databaseName = 'academic';
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname='.$databaseName.';charset=utf8', 'root', 'root');
             
             // Collect the author - author_paper - paper_ref data only for those authors who's stats haven't been calcualted yet
@@ -54,7 +54,7 @@ select apr.author_id, apr.paper_id, count(*) as qcits from tmp_author_paper_ref 
             $stmt7 = $db->prepare('create temporary table tmp_author_paper_cits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
             $stmt7->execute();
             $stmt7->closeCursor();
-            $stmt8 = $db->query('insert into tmp_author_paper_cits(author_id, paper_id, citation_count) 
+            $stmt8 = $db->prepare('insert into tmp_author_paper_cits(author_id, paper_id, citation_count) 
 select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref as apr LEFT JOIN paper as p on apr.citation_id = p.id group by author_id, paper_id order by cits DESC');
             $stmt8->execute();
             $stmt8->closeCursor();

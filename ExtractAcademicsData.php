@@ -65,7 +65,7 @@ class ExtractAcademicsData {
             $jsonResults = $this->queryMsa->searchAuthorPapers($authorMsaId, $skipOffset);
             if(isset($jsonResults)){
                 $authorPapersFound = $this->jsonToObj->toAuthorPapers($jsonResults);
-                $authorPapers = $authorPapers + $authorPapersFound;
+                $authorPapers = array_merge($authorPapers, $authorPapersFound);
                 if(count($authorPapersFound) < QueryMsa::RECORDS_PER_PAGE_QUERY){
                     $queryMorePapers = false;
                 }
@@ -106,7 +106,7 @@ class ExtractAcademicsData {
                 if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
                     $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
                     $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
-                    $papers = $papers + $papersFound;
+                    $papers = array_merge($papers, $papersFound);
                     $count = 0;
                     unset($papersIds);
                     $papersIds = array();
@@ -120,7 +120,7 @@ class ExtractAcademicsData {
         if($flush == false && count($papersIds)> 0){
             $papersIdsUnique = array_unique($papersIds, SORT_NUMERIC);
             $papersFound = $this->searchPapersByIds($batchCount, $papersIdsUnique);
-            $papers = $papers + $papersFound;
+            $papers = array_merge($papers, $papersFound);
         }
         return $papers;
     }
@@ -154,7 +154,7 @@ class ExtractAcademicsData {
             $jsonResults = $this->queryMsa->searchPaperReferences($paperMsaId, $skipOffset);
             if(isset($jsonResults)){
                 $paperRefsFound = $this->jsonToObj->toPaperReferences($jsonResults);
-                $paperRefs = $paperRefs + $paperRefsFound;
+                $paperRefs = array_merge($paperRefs, $paperRefsFound);
                 if(count($paperRefsFound) < QueryMsa::RECORDS_PER_PAGE_QUERY){
                     $queryMoreReferences = false;
                 }
