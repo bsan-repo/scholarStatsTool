@@ -21,11 +21,10 @@ class StatsDao {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname='.$databaseName.';charset=utf8', 'root', 'root');
             
             // Collect the author - author_paper - paper_ref data only for those authors who's stats haven't been calcualted yet
-            $stmt1 = $db->prepare('create temporary table tmp_author_paper_ref(author_id INTEGER, paper_id INTEGER, citation_id INTEGER)');
+            $stmt1 = $db->prepare('create temporary table tmp_author_paper_ref(author_id INTEGER, paper_id INTEGER, citation_id INTEGER, in_qjournal BOOLEAN)');
             $stmt1->execute();
             $stmt1->closeCursor();
-            $stmt2 = $db->prepare('insert into tmp_author_paper_ref(author_id, paper_id, citation_id) 
-select a_papers.author_id, a_papers.paper_id, pr.citation_id from (select a_to_process.author_id as author_id, ap.paper_id as paper_id from (select a.id as author_id from author as a LEFT JOIN author_stats as ast on a.id = ast.author_id where ast.author_id is null) as a_to_process left join author_paper as ap on a_to_process.author_id = ap.author_id) as a_papers left join paper_ref as pr on a_papers.paper_id = pr.paper_id');
+            $stmt2 = $db->prepare('insert into tmp_author_paper_ref(author_id, paper_id, citation_id, in_qjournal) select a_papers.author_id, a_papers.paper_id, pr.citation_id, pr.in_qjournal from (select author_id, paper_id from author_paper) as a_papers left join paper_ref as pr on a_papers.paper_id = pr.paper_id');
             $stmt2->execute();
             $stmt2->closeCursor();
             /////////////////////////////////////////////////
@@ -36,15 +35,14 @@ select a_papers.author_id, a_papers.paper_id, pr.citation_id from (select a_to_p
             $stmt3->closeCursor();
             /////////////////////////////////////////////////
             // Get the number of quality citations for each paper
-            $stmt4 = $db->prepare('create temporary table tmp_author_paper_qcits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
+            $stmt4 = $db->prepare('create temporary table tmp_author_paper_qcits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER);');
             $stmt4->execute();
             $stmt4->closeCursor();
-            $stmt5 = $db->prepare('insert into tmp_author_paper_qcits(author_id, paper_id, citation_count) 
-select apr.author_id, apr.paper_id, count(*) as qcits from tmp_author_paper_ref as apr LEFT JOIN paper as p on apr.citation_id = p.id where apr.citation_id is not null and (p.journal_id is not null or p.conference_id is not null) group by author_id, paper_id order by qcits DESC');
+            $stmt5 = $db->prepare('insert into tmp_author_paper_qcits(author_id, paper_id, citation_count) select author_id, paper_id, count(*) as qcits from tmp_author_paper_ref where in_qjournal=1 group by author_id, paper_id order by qcits DESC');
             $stmt5->execute();
             $stmt5->closeCursor();
             /////////////////////////////////////////////////
-            $stmt6 = $db->prepare('select * from tmp_author_paper_qcits');
+            $stmt6 = $db->prepare('select * from tmp_author_paper_qcits group by author_id, paper_id;');
             $stmt6->execute();
             $authorResults = $stmt6->fetchAll(PDO::FETCH_ASSOC);
             var_dump($authorResults);
@@ -55,7 +53,7 @@ select apr.author_id, apr.paper_id, count(*) as qcits from tmp_author_paper_ref 
             $stmt7->execute();
             $stmt7->closeCursor();
             $stmt8 = $db->prepare('insert into tmp_author_paper_cits(author_id, paper_id, citation_count) 
-select apr.author_id, apr.paper_id, count(*) as cits from tmp_author_paper_ref as apr LEFT JOIN paper as p on apr.citation_id = p.id group by author_id, paper_id order by cits DESC');
+select author_id, paper_id, count(*) as cits from tmp_author_paper_ref where citation_id IS NOT NULL group by author_id, paper_id order by cits DESC');
             $stmt8->execute();
             $stmt8->closeCursor();
             /////////////////////////////////////////////////

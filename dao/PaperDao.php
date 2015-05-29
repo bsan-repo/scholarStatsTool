@@ -14,6 +14,17 @@
 class PaperDao {
     
     public function insert(&$paper){
+        // QUICK FIX
+        // TODO Check this part of the code if there are any problems with collecting the papers
+        
+        $existingRecordId = $this->findIdByMsaId($paper->msaId);
+        
+        if($existingRecordId != null){
+            $paper->id = $existingRecordId;
+            return;
+        }
+        
+        // Default path to insert the record
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
@@ -121,7 +132,7 @@ class PaperDao {
  
             $stmt->closeCursor();
             $stmt = null;
-            print('Updated author details - affiliations: '.$affectedRows."\n");
+            print('fixJournalsAndConferencesForeignKey: '.$affectedRows."\n");
             
         }catch(PDOException $ex) {
             echo "DB Exception(PaperReferenceDao): ".$ex->getMessage();

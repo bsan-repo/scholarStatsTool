@@ -147,6 +147,9 @@ class ExtractAcademicsData {
     }
 
     public function searchPaperReferences($paperMsaId, $paperId){
+        if($paperMsaId == 34325500){
+            print("Test paper spotterd");
+        }
         $paperRefs = array();
         $queryMoreReferences = true;
         $skipOffset = 0;
@@ -165,6 +168,9 @@ class ExtractAcademicsData {
         }
         // Set the author id in the DB for all the found author papers
         foreach($paperRefs as $paperRef){
+            if($paperRef->msaCitationId == 3622474){
+                print("Test citation spotterd");
+            }
             $paperRef->paperId = $paperId;
         }
         return $paperRefs;
@@ -239,9 +245,10 @@ class ExtractAcademicsData {
         $this->retrieveJournalsAndConferencesForPapers();
         
         (new ExtractAcademicsAffiliations())->retrieveAffiliationsForAuthors();
-        
-        (new AuthorDetailsDao())->fixAffiliationForeignKey();
-        
+    }
+    
+    public function fixReferencesForJournalsAndConferences(){
+        //(new AuthorDetailsDao())->fixAffiliationForeignKey();
         (new PaperDao())->fixJournalsAndConferencesForeignKey();
     }
 }

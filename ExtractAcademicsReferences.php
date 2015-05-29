@@ -62,7 +62,7 @@ class ExtractAcademicsReferences {
                     $count++;
                 }
             }else{
-                $paperRef->paperId = $foundIdForMsaId;
+                $paperRef->citationId = $foundIdForMsaId;
             }
         }
         if($flush == false && count($papersIds)> 0){

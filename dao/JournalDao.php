@@ -14,6 +14,17 @@
 class JournalDao {
     
     public function insert(&$journal){
+        // QUICK FIX
+        // TODO Check this part of the code if there are any problems with collecting the papers
+        
+        $existingRecordId = $this->findIdByMsaId($journal->msaId);
+        
+        if($existingRecordId != null){
+            $affiliation->id = $existingRecordId;
+            return;
+        }
+        
+        // Default path to insert the record
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
@@ -50,5 +61,27 @@ class JournalDao {
         }finally{
             $db = null;
         }
+    }
+    
+    public function findIdByMsaId($recordMsaId){
+        $id = null;
+        try {
+            $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
+            
+            $stmt = $db->prepare('select id from journal where msa_id=?');
+            $stmt->execute(array($recordMsaId));
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = null;
+            
+            if (isset($result)){
+                $id = $result['id'];
+            }
+            
+        } catch(PDOException $ex) {
+            echo "DB Exception: ".$ex->getMessage();
+        }finally{
+            $db = null;
+        }
+        return $id;
     }
 }
