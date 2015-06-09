@@ -1,105 +1,91 @@
-Simon Peyton-Jones    -- page 1 ----------------------
-Philip Wadler
-Luca Cardelli
-Thomas W. Reps
-Ken Kennedy
-Matthias Felleisen
-Craig Chambers
-Benjamin Pierce
-Paul Hudak
-Martín Abadi
-James R. Larus
-Robert Harper
-Guy L. Steele
-Barbara Liskov
-Andrew W. Appel
-Alex Aiken
-Laurie Hendren
-Xavier Leroy
-Monica S. Lam
-Manuel V. Hermenegildo
-Pascal Van Hentenryck
-Rajiv Gupta
-Barbara G. Ryder
-Martin C. Rinard
-Mitchell Wand
-Mooly Sagiv
-John C. Mitchell
-Peter Stuckey
-Olivier Danvy
-Saumya Debray
-Bela Stantic           --------- Griffith
-Kaile Su
-Kewen Wang
-Michael Blumenstein
-Ruben Gonzalez
-Vallipuram Muthukkumarasamy
-Rene Hexel
-Vladimir Estivill-Castro
-Leigh Ellen Potter
-Jolon Faichney
-Jarrod Trevathan
-Sven Venema
-Peter Bernus
-Amir Hossein Ghapanchi
-
-// page 2 programming languages authors -----------------------------------------------
-Amer Diwan
-Tim Sheard
-Manuel Fahndrich
-Laurence Wolsey
-Ehud Shapiro
-George C. Necula
-Christopher W. Fraser
-Stephen Freund
-Egon Balas
-Manfred W. Padberg
-James S. Noble
-Stephane Ducasse
-Danny De Schreye
-German Puebla
-Richard S. Bird
-Ralph Johnson
-David F. Bacon
-Rastislav Bodik
-David Padua
-Susan Eggers
-Joxan Jaffar
-Peter F. Sweeney
-Renato D. C. Monteiro
+(^\w.*\n)(.*$)
+^\s
+-- Griffith left to process - Require to copy current griffith db to academic an creating the index in the DB
 
 
-// page 1 programming languages authors -----------------------------------------------
+-- Authors From the Turing Awards List in Fu, Song & Chiu: The academic social network
 
 
-// page 6 programming languages authors -----------------------------------------------
-Tao Xie
-William H. Harrison
-Frank Mueller
-Claude Kirchner
-Farhad Arbab
-Gregor Snelting
-Emery D. Berger
-Patrick Lam
-Wolfram Schulte
-Steven P. Reiss
-Koen Lindstrom Claessen
-Rachid Echahed
-Rita Loogen
-Zoltan Somogyi
-Gregor Engels
-Hongseok Yang
-Christian Queinnec
-Gilles Muller
-Dominic Duggan
-Cristina Videira Lopes
-Gilles Pesant
-Paola Inverardi
-Carla P. Gomes
-Dino Pedreschi
-John Tang Boyland
-Byron Cook
-Luc Maranget
-Jose Luiz Fiadeiro
-Matthew Hennessy
-Satish Chandra
+
+
+ -- page 1 Programming languages http://academic.research.microsoft.com/RankList?entitytype=2&topDomainID=2&subDomainID=24&last=0&start=1&end=100
+
+
+-- page 1 ---------------------- Databases http://academic.research.microsoft.com/RankList?entitytype=2&topDomainID=2&subDomainID=18&last=0&start=1&end=100
+
+
+Rajeev Motwani
+Wil van der Aalst
+Daniela Florescu
+Elisa Bertino
+Hans-Peter Kriegel
+David Maier
+Stefano Ceri
+Richard T. Snodgrass
+Dimitris Papadias
+Yehoshua Sagiv
+Sushil Jajodia
+Yannis E. Ioannidis
+Laks Lakshmanan
+Peter Buneman
+Miron Livny
+John Mylopoulos
+Nick Koudas
+Gio Wiederhold
+Maurizio Lenzerini
+Divyakant Agrawal
+Amr El Abbadi
+Timos Sellis
+
+
+-- page 1 ---------------------- Graphics http://academic.research.microsoft.com/RankList?entitytype=2&topDomainID=2&subDomainID=10&last=0&start=1&end=100
+Pat Hanrahan
+Markus H. Gross
+Nadia Magnenat-Thalmann
+Hans-peter Seidel
+Daniel Thalmann
+Donald Greenberg
+Michael F. Cohen
+David Salesin
+Arie E. Kaufman
+Dinesh Manocha
+Daniel Cohen-Or
+Peter . Schroder
+Hugues Hoppe
+Marc Levoy
+Ming C. Lin
+Leif Kobbelt
+Norman Badler
+Peter Shirley
+Thomas A. Funkhouser
+Harry Shum
+Mathieu Desbrun
+Charles D. Hansen
+Jessica K. Hodgins
+Thomas Ertl
+Greg Turk
+Demetri Terzopoulos
+Roberto Scopigno
+Henry Fuchs
+Tony Derose
+Fredo Durand
+George Drettakis
+James F. O'brien
+Claudio T. Silva
+Julie Dorsey
+Ronald Fedkiw
+Richard Szeliski
+Alan Barr
+Kwan-Liu Ma
+Bernd Hamann
+Paolo Cignoni
+Hanspeter Pfister
+Marc Alexa
+Nelson L. Max
+Dani Lischinski
+John Hughes
+Baining Guo
+Jarek Rossignac
+Chandrajit Bajaj
+Philipp Slusallek
+Wolfgang Heidrich

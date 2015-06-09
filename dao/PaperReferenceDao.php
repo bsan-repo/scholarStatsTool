@@ -35,6 +35,8 @@ class PaperReferenceDao {
     }
     
     public function fixPaperCitationForeignKey(){
+        // performance check
+        print("INIT PaperReferenceDao fixPaperCitationForeignKey");
         try {
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname=academic;charset=utf8', 'root', 'root');
             
@@ -50,5 +52,7 @@ class PaperReferenceDao {
         }finally{
             $db = null;
         }
+        // performance check
+        print("END PaperReferenceDao fixPaperCitationForeignKey");
     }
 }

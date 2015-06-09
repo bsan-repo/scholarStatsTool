@@ -17,22 +17,22 @@ class StatsDao {
     public function calculateStats(){
         $papers = array();
         try {
-            $databaseName = 'academic';
+            $databaseName = 'xxxxxxxxxxxx';
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname='.$databaseName.';charset=utf8', 'root', 'root');
             
             // Collect the author - author_paper - paper_ref data only for those authors who's stats haven't been calcualted yet
             $stmt1 = $db->prepare('create temporary table tmp_author_paper_ref(author_id INTEGER, paper_id INTEGER, citation_id INTEGER, in_qjournal BOOLEAN)');
             $stmt1->execute();
             $stmt1->closeCursor();
-            $stmt2 = $db->prepare('insert into tmp_author_paper_ref(author_id, paper_id, citation_id, in_qjournal) select a_papers.author_id, a_papers.paper_id, pr.citation_id, pr.in_qjournal from (select author_id, paper_id from author_paper) as a_papers left join paper_ref as pr on a_papers.paper_id = pr.paper_id');
+            $stmt2 = $db->prepare('insert into tmp_author_paper_ref(author_id, paper_id, citation_id, in_qjournal) select a_papers.author_id, a_papers.paper_id, pr.citation_id, pr.in_qjournal from author_paper as a_papers left join paper_ref as pr on a_papers.paper_id = pr.paper_id;');
             $stmt2->execute();
             $stmt2->closeCursor();
             /////////////////////////////////////////////////
-            $stmt3 = $db->prepare('select * from tmp_author_paper_ref');
+            /*$stmt3 = $db->prepare('select * from tmp_author_paper_ref');
             $stmt3->execute();
             $authorResults = $stmt3->fetchAll(PDO::FETCH_ASSOC);
             var_dump($authorResults);
-            $stmt3->closeCursor();
+            $stmt3->closeCursor();*/
             /////////////////////////////////////////////////
             // Get the number of quality citations for each paper
             $stmt4 = $db->prepare('create temporary table tmp_author_paper_qcits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER);');
@@ -42,11 +42,11 @@ class StatsDao {
             $stmt5->execute();
             $stmt5->closeCursor();
             /////////////////////////////////////////////////
-            $stmt6 = $db->prepare('select * from tmp_author_paper_qcits group by author_id, paper_id;');
+            /*$stmt6 = $db->prepare('select * from tmp_author_paper_qcits group by author_id, paper_id;');
             $stmt6->execute();
             $authorResults = $stmt6->fetchAll(PDO::FETCH_ASSOC);
             var_dump($authorResults);
-            $stmt6->closeCursor();
+            $stmt6->closeCursor();*/
             /////////////////////////////////////////////////
             // Calculate the total citations for each paper
             $stmt7 = $db->prepare('create temporary table tmp_author_paper_cits(author_id INTEGER, paper_id INTEGER, citation_count INTEGER)');
@@ -57,13 +57,13 @@ select author_id, paper_id, count(*) as cits from tmp_author_paper_ref where cit
             $stmt8->execute();
             $stmt8->closeCursor();
             /////////////////////////////////////////////////
-            $stmt9 = $db->prepare('select * from tmp_author_paper_cits ');
+            /*$stmt9 = $db->prepare('select * from tmp_author_paper_cits ');
             $stmt9->execute();
             $authorResults = $stmt9->fetchAll(PDO::FETCH_ASSOC);
-            $stmt9->closeCursor();
+            $stmt9->closeCursor();*/
             /////////////////////////////////////////////////
             // Get the ids for all the authors which stats to be calculated 
-            $stmt10 = $db->prepare('select author_id from tmp_author_paper_qcits group by author_id');
+            $stmt10 = $db->prepare('select author_id from tmp_author_paper_cits group by author_id');
             $stmt10->execute();
             $authorResults = $stmt10->fetchAll(PDO::FETCH_ASSOC);
             $stmt10->closeCursor();

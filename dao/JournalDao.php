@@ -20,7 +20,7 @@ class JournalDao {
         $existingRecordId = $this->findIdByMsaId($journal->msaId);
         
         if($existingRecordId != null){
-            $affiliation->id = $existingRecordId;
+            $journal->id = $existingRecordId;
             return;
         }
         

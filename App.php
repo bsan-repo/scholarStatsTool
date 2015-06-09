@@ -40,6 +40,8 @@ class App {
     public $authorsToSeachCsvFilePath = 'datafeed/processingAuthors.csv';
     
     public function run(){
+        // Set to use an unlimited memory size to allow to run more complex queries.
+        ini_set('memory_limit', '-1');
         
         // REGULAR AUTHOR BATCH PROCESSING
         // Load authors names in csv file to the DB

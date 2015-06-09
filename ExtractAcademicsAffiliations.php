@@ -38,6 +38,8 @@ class ExtractAcademicsAffiliations {
     }
     
     public function retrieveAffiliationsForAuthors(){
+        // performance check
+        print("INIT retrieveAffiliationsForAuthors");
         $affiliationDao = new AffiliationDao();
         $authorDetailsDao = new AuthorDetailsDao();
         // Papers without journal
@@ -54,6 +56,8 @@ class ExtractAcademicsAffiliations {
             if(isset($AffiliationCurrentId) == false && $authorDetail->msaAffiliationId > 0){
                 $recordIds[$count] = $authorDetail->msaAffiliationId;
                 if($count >= QueryMsa::MAX_RECORDS_PER_QUERY){
+                    // performance check
+                    print("PROCESS BATCH(".$batchCount.") retrieveAffiliationsForAuthors");
                     $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
                     $this->searchAffiliationsByIds($batchCount, $recordIdsUnique);
                     $count = 0;
@@ -68,8 +72,12 @@ class ExtractAcademicsAffiliations {
         }
         
         if($flush == false && count($recordIds)> 0){
+            // performance check
+            print("PROCESS BATCH(".$batchCount.") LAST retrieveAffiliationsForAuthors");
             $recordIdsUnique = array_unique($recordIds, SORT_NUMERIC);
             $this->searchAffiliationsByIds($batchCount, $recordIdsUnique);
         }
+        // performance check
+        print("END retrieveAffiliationsForAuthors");
     }
 }

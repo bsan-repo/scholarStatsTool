@@ -181,6 +181,7 @@ class ExtractAcademicsData {
         (new ExtractAcademicsConferences)->retrieveConferencesForPapers();
         // Fix foreign keys using the msa ids
         (new AuthorPaperDao())->fixPaperForeignKey();
+        // TODO check method for performance EXTREMELLY SLOW
         (new PaperReferenceDao())->fixPaperCitationForeignKey();
     }
     
@@ -198,7 +199,7 @@ class ExtractAcademicsData {
     //              Journal(Paper.journal_id)
     //              Conference(Paper.conference_id)
     //
-    public function processBatch(){
+    public function processBatch(){/*
         print("Retrieving authors to process\n");
         $authorToSearchDao = new AuthorToSearchDao();
         $authorsToProcess = $authorToSearchDao->findAuthorsToProcess();
@@ -241,7 +242,13 @@ class ExtractAcademicsData {
                 }
             }
             $authorToSearchDao->setAuthorAsProcessed($authorToProcess->id);
-        }
+        }*/
+        $this->retrieveJournalsAndConferencesForPapers();
+        
+        (new ExtractAcademicsAffiliations())->retrieveAffiliationsForAuthors();
+    }
+    
+    public function fixConferencesJournalsAndAffiliations(){
         $this->retrieveJournalsAndConferencesForPapers();
         
         (new ExtractAcademicsAffiliations())->retrieveAffiliationsForAuthors();

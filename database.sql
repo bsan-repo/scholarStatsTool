@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS affiliation(
 	INDEX(msa_id)
 ) ENGINE=INNODB DEFAULT CHARSET=latin1;
 
+
 CREATE TABLE IF NOT EXISTS author_details(
 	id INTEGER PRIMARY KEY AUTO_INCREMENT, 
 	msa_id INTEGER,
@@ -71,6 +72,7 @@ CREATE TABLE IF NOT EXISTS journal(
 	fullname VARCHAR(256),
 	homepage VARCHAR(256),
 	era_entry INTEGER DEFAULT NULL,
+	INDEX(msa_id),
 	FOREIGN KEY(era_entry)
 		REFERENCES era_journal(id)
 		ON DELETE SET NULL
@@ -82,6 +84,7 @@ CREATE TABLE IF NOT EXISTS conference(
 	fullname VARCHAR(256),
 	homepage VARCHAR(256),
 	era_entry INTEGER DEFAULT NULL,
+	INDEX(msa_id),
 	FOREIGN KEY(era_entry)
 		REFERENCES era_conference(id)
 		ON DELETE SET NULL
@@ -97,6 +100,7 @@ CREATE TABLE IF NOT EXISTS paper(
 	keyword VARCHAR(255),
 	msa_conference_id INTEGER,
 	msa_journal_id INTEGER,
+	INDEX(msa_id),
 	FOREIGN KEY(conference_id)
 		REFERENCES conference(id)
 		ON DELETE SET NULL,
@@ -112,6 +116,8 @@ CREATE TABLE author_paper(
 	msa_seq_id INTEGER,
 	msa_paper_id INTEGER,
 	msa_author_id INTEGER,
+        INDEX(msa_paper_id),
+        INDEX(msa_author_id),
 	FOREIGN KEY(author_id)
 		REFERENCES author(id)
 		ON DELETE CASCADE,
@@ -127,6 +133,8 @@ CREATE TABLE IF NOT EXISTS paper_ref(
 	msa_paper_id INTEGER,
 	msa_citation_id INTEGER,
 	msa_seq_ref INTEGER,
+        INDEX(msa_paper_id),
+        INDEX(msa_citation_id),
 	FOREIGN KEY(paper_id)
 		REFERENCES paper(id)
 		ON DELETE CASCADE,
@@ -147,6 +155,25 @@ CREATE TABLE IF NOT EXISTS author_stats(
 		REFERENCES author(id)
 		ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=latin1;
+
+
+
+
+
+
+
+CREATE INDEX paper_ref_msa_paper_id ON paper_ref (msa_paper_id) USING BTREE;
+CREATE INDEX paper_ref_msa_citation_id ON paper_ref (msa_citation_id) USING BTREE;
+CREATE INDEX author_paper_msa_paper_id ON author_paper (msa_paper_id) USING BTREE;
+CREATE INDEX author_paper_msa_author_id ON author_paper (msa_author_id) USING BTREE;
+CREATE INDEX paper__msa_id ON paper (msa_id) USING BTREE;
+CREATE INDEX conference_msa_id ON conference (msa_id) USING BTREE;
+CREATE INDEX journal_msa_id ON journal (msa_id) USING BTREE;
+CREATE INDEX affiliation_msa_id ON affiliation (msa_id) USING BTREE;
+
+CREATE INDEX paper_title_id ON paper (title) USING BTREE;
+
+
 
 ALTER TABLE author_to_search AUTO_INCREMENT = 33;
 ALTER TABLE affiliation AUTO_INCREMENT = 23;

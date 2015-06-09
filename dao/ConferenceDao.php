@@ -17,10 +17,10 @@ class ConferenceDao {
         // QUICK FIX
         // TODO Check this part of the code if there are any problems with collecting the papers
         
-        $existingRecordId = $this->findIdByMsaId($affiliation->msaId);
+        $existingRecordId = $this->findIdByMsaId($conference->msaId);
         
         if($existingRecordId != null){
-            $affiliation->id = $existingRecordId;
+            $conference->id = $existingRecordId;
             return;
         }
         
