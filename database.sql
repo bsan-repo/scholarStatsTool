@@ -184,3 +184,37 @@ ALTER TABLE conference AUTO_INCREMENT = 13819;
 ALTER TABLE paper AUTO_INCREMENT = 66233;
 ALTER TABLE author_paper AUTO_INCREMENT = 4786;
 ALTER TABLE paper_ref AUTO_INCREMENT = 170795;
+
+
+
+
+-- Added to authordata
+-- Include era tables from this script
+CREATE INDEX publisher_index_work ON author_works (publisher) USING BTREE;
+CREATE INDEX gpublisher_index_work ON author_works (publisher_in_google) USING BTREE;
+
+CREATE INDEX publisher_index_cit ON citing_works (publisher) USING BTREE;
+CREATE INDEX gpublisher_index_cit ON citing_works (publisher_in_google) USING BTREE;
+CREATE INDEX extpublisher_index_cit ON citing_works (publisher_in_external_web) USING BTREE;
+
+-- work 
+ALTER TABLE author_works ADD COLUMN era_j_id INTEGER;
+ALTER TABLE author_works ADD COLUMN era_c_id INTEGER;
+-- citation
+ALTER TABLE citing_works ADD COLUMN era_j_id INTEGER;
+ALTER TABLE citing_works ADD COLUMN era_c_id INTEGER;
+-- work 196, 196, 9, 9
+update author_works as aw left join era_journal as ej on aw.publisher=ej.name set era_j_id=ej.id;
+update author_works as aw left join era_journal as ej on aw.publisher_in_google=ej.name set era_j_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update author_works as aw left join era_conference as ej on aw.publisher=ej.name set era_c_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update author_works as aw left join era_conference as ej on aw.publisher_in_google=ej.name set era_c_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+-- citation  1188, 1, 1348, 52, 11, 51
+update citing_works as aw left join era_journal as ej on aw.publisher=ej.name set era_j_id=ej.id;
+update citing_works as aw left join era_journal as ej on aw.publisher_in_google=ej.name set era_j_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update citing_works as aw left join era_journal as ej on aw.publisher_in_external_web=ej.name set era_j_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update citing_works as aw left join era_conference as ej on aw.publisher=ej.name set era_c_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update citing_works as aw left join era_conference as ej on aw.publisher_in_google=ej.name set era_c_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+update citing_works as aw left join era_conference as ej on aw.publisher_in_external_web=ej.name set era_c_id=ej.id where aw.era_j_id is null and aw.era_c_id is null;
+
+select count(*) from author_works where era_j_id is not null or era_c_id is not null; -- 204
+select count(*) from citing_works where era_j_id is not null or era_c_id is not null -- 348

@@ -17,7 +17,7 @@ class StatsDao {
     public function calculateStats(){
         $papers = array();
         try {
-            $databaseName = 'xxxxxxxxxxxx';
+            $databaseName = '04jun_turingAwardsStatsNoDupl';
             $db = new PDO('mysql:host=127.0.0.1;port=8889;dbname='.$databaseName.';charset=utf8', 'root', 'root');
             
             // Collect the author - author_paper - paper_ref data only for those authors who's stats haven't been calcualted yet

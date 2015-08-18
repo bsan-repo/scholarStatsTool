@@ -42,7 +42,7 @@ class App {
     public function run(){
         // Set to use an unlimited memory size to allow to run more complex queries.
         ini_set('memory_limit', '-1');
-        
+        /*
         // REGULAR AUTHOR BATCH PROCESSING
         // Load authors names in csv file to the DB
         (new PopulateAuthorList())->populate($this->authorsToSeachCsvFilePath);
@@ -50,7 +50,7 @@ class App {
         // process authors added
         (new ExtractAcademicsData())->processBatch();
          
-        
-        //(new StatsDao())->calculateStats();
+        */
+        (new StatsDao())->calculateStats();
     }
 }
